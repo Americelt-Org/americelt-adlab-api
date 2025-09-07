@@ -6,6 +6,9 @@ class LocationDto {
   @IsString()
   country: string;
 
+  @IsString()
+  type: string;
+
   @IsArray()
   @IsString({ each: true })
   locations: string[]
@@ -45,6 +48,10 @@ export class CreateJobDto {
   @IsArray()
   @IsString({ each: true})
   keywords: string[];
+
+  @IsOptional()
+  @IsString()
+  domain?: string;
 
   @ValidateNested()
   @Type(() => ScheduleDto)
