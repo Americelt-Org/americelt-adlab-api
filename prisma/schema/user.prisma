@@ -1,0 +1,10 @@
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String?
+  jobs     Job[] // Linked jobs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

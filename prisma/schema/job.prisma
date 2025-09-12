@@ -1,0 +1,22 @@
+model Job {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String
+  keywords      String[]
+  search_engine SearchEngine
+  device        Device
+  location      String
+
+  cron        String // Cron expression for scheduling
+  is_active   Boolean   @default(true)
+  last_run_at DateTime? // Timestamp of the last run
+  next_run_at DateTime? // Timestamp of the next scheduled run   
+
+  scrape_results Scrape_Result[] // Linked extracted results (optional)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  competitor Competitor[]
+}

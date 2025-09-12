@@ -1,27 +1,40 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
+import { getJson } from "serpapi"
+import { ConfigService } from '@nestjs/config';
+import { DatabaseService } from 'src/database/database.service';
+import { Device, Job, SearchEngine } from 'generated/prisma';
 import { CreateJobDto } from './dto/create-job.dto';
-import { RobomotionService } from 'src/robomotion/robomotion.service';
 
 @Injectable()
 export class JobService {
 
-  constructor(private robomotionService: RobomotionService) {}
+  constructor(
+    private configService: ConfigService,
+    private databaseService: DatabaseService,
+  ) {}
 
   async create(job: CreateJobDto) {
-    const searchParams = new URLSearchParams({
-      q: job.keywords.join(' '),
-      l: job.location.locations.join(', '),
-    })
 
-    const domain = job.domain ? job.domain : 'https://www.google.com';
-    const url = `${domain}/search?${searchParams.toString()}`;
+    const newJob: Job = await this.databaseService.job.create({
+      data: {
+        userId: job.userId,
+        name: job.name,
+        keywords: job.keywords,
+        search_engine: job.search_engine as unknown as SearchEngine,
+        device: job.device as unknown as Device,
+        location: job.location,
+        cron: job.cron,
+        is_active: false,
+        last_run_at: new Date(),
+        next_run_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    });
 
-    try {  
-      await this.robomotionService.startJob(url)
-      return { message: 'Job created', url }; 
-    } catch (e) {
-      throw new ServiceUnavailableException('Failed to start job' + e.message);
-    }
+    const jobs = await this.databaseService.job.findMany();
+
+    return { message: 'Job created', jobs: jobs}; 
   }
-
 }

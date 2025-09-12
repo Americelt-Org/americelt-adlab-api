@@ -1,0 +1,63 @@
+model Scrape_Result {
+  id          String     @id @default(uuid())
+  
+  job         Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId       String
+
+  keyword     String
+  local_result    Local_Result[]
+  organic_result  Organic_Result[]
+  ads_result      Ads_Result[]
+
+  last_run_at DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+
+model Local_Result {
+  id          String     @id @default(uuid())
+
+  scrapes     Scrape_Result @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id   String
+  
+  position    Int
+  title       String
+  place_id    String
+  lsig        String
+  place_id_search String
+  reviews     Int
+  price       String
+  type        String
+  address     String
+  phone       String
+  thumbnail   String
+  gps_coordinates Json
+}
+
+model Organic_Result {
+  id          String     @id @default(uuid())
+
+  scrape     Scrape_Result @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id String
+  
+  position    Int
+  title       String
+  link        String
+  snippet     String
+  displayed_link String
+  sitelinks   Json
+}
+
+model Ads_Result {
+  id          String     @id @default(uuid())
+
+  scrape     Scrape_Result @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id   String
+  
+  position    Int
+  title       String
+  link        String
+  snippet     String
+  displayed_link String
+}

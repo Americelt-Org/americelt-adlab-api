@@ -5,11 +5,33 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider  = "prisma-client-js"
+  output    = "../../generated/prisma"
+  migration = "../migrations"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Device {
+  desktop
+  mobile
+  tablet
+}
+
+enum SearchEngine {
+  google
+  bing
+  duckduckgo
+}
+
+enum LocationType {
+  city
+  region
+  country
+  county
+  state
+  postal_code
 }

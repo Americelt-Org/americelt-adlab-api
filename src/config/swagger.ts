@@ -1,16 +1,7 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { INestApplication } from "@nestjs/common";
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from "@nestjs/swagger";
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
-
-    // Swagger configuration
+ // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Job Search API')
     .setDescription('API for managing job search automation')
@@ -20,13 +11,17 @@ async function bootstrap() {
     .addBearerAuth() // If you're using JWT authentication
     .build();
 
+ 
+
+function generateSwaggerDoc(app: INestApplication): OpenAPIObject {
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true, // Keep auth token after refresh
     },
   });
-  
-  await app.listen(process.env.PORT ?? 3001);
+
+  return document
 }
-bootstrap();
+
