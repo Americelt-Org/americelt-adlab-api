@@ -3,7 +3,7 @@ model User {
   email    String  @unique
   password String
   name     String?
-  jobs     Job[] // Linked jobs
+  tasks    Task[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

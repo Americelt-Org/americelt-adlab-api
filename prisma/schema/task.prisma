@@ -1,4 +1,4 @@
-model Job {
+model Task {
   id     String @id @default(uuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -14,7 +14,7 @@ model Job {
   last_run_at DateTime? // Timestamp of the last run
   next_run_at DateTime? // Timestamp of the next scheduled run   
 
-  scrape_results Scrape_Result[] // Linked extracted results (optional)
+  scrape_results Scrape[] // Linked extracted results (optional)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 

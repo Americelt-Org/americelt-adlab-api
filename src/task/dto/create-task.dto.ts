@@ -12,23 +12,8 @@ import { Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Device, SearchEngine } from 'generated/prisma';
 
-// // Enums (these should match your Prisma enums)
-// export enum SearchEngine {
-//   GOOGLE = 'google',
-//   BING = 'bing',
-//   YAHOO = 'yahoo',
-//   DUCKDUCKGO = 'duckduckgo'
-// }
 
-// export enum Device {
-//   DESKTOP = 'desktop',
-//   MOBILE = 'mobile',
-//   TABLET = 'tabler'
-// }
-
-// ===== JOB DTOs =====
-
-export class CreateJobDto {
+export class CreateTaskDto {
   @ApiProperty({
     description: 'Job name',
     example: 'Frontend Developer Search'
@@ -83,9 +68,10 @@ export class CreateJobDto {
     description: 'Cron expression for job scheduling',
     example: '0 9 * * MON-FRI'
   })
+  
   @IsString({ message: 'Cron must be a string' })
   @IsNotEmpty({ message: 'Cron expression is required' })
-  @Matches(/^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/, 
+  @Matches(/^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/, 
     { message: 'Invalid cron expression format' })
   cron: string;
 
@@ -100,7 +86,7 @@ export class CreateJobDto {
   is_active?: boolean;
 }
 
-export class UpdateJobDto extends PartialType(CreateJobDto) {}
+export class UpdateJobDto extends PartialType(CreateTaskDto) {}
 
 export class JobResponseDto {
   @ApiProperty({

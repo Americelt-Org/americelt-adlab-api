@@ -1,8 +1,8 @@
-model Scrape_Result {
+model Scrape {
   id          String     @id @default(uuid())
   
-  job         Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobId       String
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId       String
 
   keyword     String
   local_result    Local_Result[]
@@ -18,7 +18,7 @@ model Scrape_Result {
 model Local_Result {
   id          String     @id @default(uuid())
 
-  scrapes     Scrape_Result @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrapes     Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
   scrape_id   String
   
   position    Int
@@ -38,7 +38,7 @@ model Local_Result {
 model Organic_Result {
   id          String     @id @default(uuid())
 
-  scrape     Scrape_Result @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape     Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
   scrape_id String
   
   position    Int
@@ -52,12 +52,16 @@ model Organic_Result {
 model Ads_Result {
   id          String     @id @default(uuid())
 
-  scrape     Scrape_Result @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape      Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
   scrape_id   String
   
   position    Int
   title       String
-  link        String
-  snippet     String
-  displayed_link String
+  link        String?
+  snippet     String?
+  displayed_link String?
+  tracking_link String?
+  thumbnail   String?
+  details     String?
+  details_list String[]
 }

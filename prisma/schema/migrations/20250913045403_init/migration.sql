@@ -12,7 +12,7 @@ CREATE TABLE "public"."Competitor" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "domain" TEXT NOT NULL,
-    "jobId" TEXT NOT NULL,
+    "taskId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -20,34 +20,15 @@ CREATE TABLE "public"."Competitor" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Job" (
+CREATE TABLE "public"."Scrape" (
     "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "keywords" TEXT[],
-    "search_engine" "public"."SearchEngine" NOT NULL,
-    "device" "public"."Device" NOT NULL,
-    "location" TEXT NOT NULL,
-    "cron" TEXT NOT NULL,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "last_run_at" TIMESTAMP(3),
-    "next_run_at" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Job_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."Scrape_Result" (
-    "id" TEXT NOT NULL,
-    "jobId" TEXT NOT NULL,
+    "taskId" TEXT NOT NULL,
     "keyword" TEXT NOT NULL,
     "last_run_at" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Scrape_Result_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Scrape_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -90,11 +71,34 @@ CREATE TABLE "public"."Ads_Result" (
     "scrape_id" TEXT NOT NULL,
     "position" INTEGER NOT NULL,
     "title" TEXT NOT NULL,
-    "link" TEXT NOT NULL,
-    "snippet" TEXT NOT NULL,
-    "displayed_link" TEXT NOT NULL,
+    "link" TEXT,
+    "snippet" TEXT,
+    "displayed_link" TEXT,
+    "tracking_link" TEXT,
+    "thumbnail" TEXT,
+    "details" TEXT,
+    "details_list" TEXT[],
 
     CONSTRAINT "Ads_Result_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Task" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "keywords" TEXT[],
+    "search_engine" "public"."SearchEngine" NOT NULL,
+    "device" "public"."Device" NOT NULL,
+    "location" TEXT NOT NULL,
+    "cron" TEXT NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "last_run_at" TIMESTAMP(3),
+    "next_run_at" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -116,19 +120,19 @@ CREATE UNIQUE INDEX "Competitor_domain_key" ON "public"."Competitor"("domain");
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
 -- AddForeignKey
-ALTER TABLE "public"."Competitor" ADD CONSTRAINT "Competitor_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "public"."Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Competitor" ADD CONSTRAINT "Competitor_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "public"."Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Job" ADD CONSTRAINT "Job_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Scrape" ADD CONSTRAINT "Scrape_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "public"."Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Scrape_Result" ADD CONSTRAINT "Scrape_Result_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "public"."Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Local_Result" ADD CONSTRAINT "Local_Result_scrape_id_fkey" FOREIGN KEY ("scrape_id") REFERENCES "public"."Scrape"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Local_Result" ADD CONSTRAINT "Local_Result_scrape_id_fkey" FOREIGN KEY ("scrape_id") REFERENCES "public"."Scrape_Result"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Organic_Result" ADD CONSTRAINT "Organic_Result_scrape_id_fkey" FOREIGN KEY ("scrape_id") REFERENCES "public"."Scrape"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Organic_Result" ADD CONSTRAINT "Organic_Result_scrape_id_fkey" FOREIGN KEY ("scrape_id") REFERENCES "public"."Scrape_Result"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Ads_Result" ADD CONSTRAINT "Ads_Result_scrape_id_fkey" FOREIGN KEY ("scrape_id") REFERENCES "public"."Scrape"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Ads_Result" ADD CONSTRAINT "Ads_Result_scrape_id_fkey" FOREIGN KEY ("scrape_id") REFERENCES "public"."Scrape_Result"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Task" ADD CONSTRAINT "Task_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

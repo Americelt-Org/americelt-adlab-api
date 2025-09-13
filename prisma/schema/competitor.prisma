@@ -2,8 +2,8 @@ model Competitor {
   id     String @id @default(uuid())
   name   String
   domain String @unique
-  job    Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobId  String
+  task    Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

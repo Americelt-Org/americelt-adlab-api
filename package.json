@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -19,20 +22,26 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:gen": "npx prisma generate --schema ./prisma/schema",
-    "prisma:mig": "npx prisma migrate dev --schema ./prisma/schema",
+    "prisma:migrate": "npx prisma migrate dev --schema ./prisma/schema",
     "prisma:reset": "npx prisma migrate reset --schema ./prisma/schema",
-    "prisma:format": "npx prisma format --schema ./prisma/schema"
+    "prisma:format": "npx prisma format --schema ./prisma/schema",
+    "prisma:seed": "prisma db seed"
   },
   "dependencies": {
+    "@nestjs/bullmq": "^11.0.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.15.0",
+    "bcrypt": "^6.0.0",
+    "bullmq": "^5.58.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "cron": "4.3.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "serpapi": "^2.2.1",
