@@ -5,6 +5,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ScraperService } from 'src/scraper/scraper.service';
+import { ResultExtractorService } from 'src/result-extractor/result-extractor.service';
 
 @Injectable()
 export class TaskService {
@@ -12,7 +13,8 @@ export class TaskService {
   constructor(
     private databaseService: DatabaseService,
     private sheduleRegistry: SchedulerRegistry,
-    private scraperService: ScraperService
+    private scraperService: ScraperService,
+    private resultExtractorService: ResultExtractorService
   ) {}
 
   async create(task: CreateTaskDto): Promise<Task> {
@@ -64,13 +66,11 @@ export class TaskService {
           task.location,
           task.search_engine,
           task.device
-        ) 
+        )
 
-        const local_results= scrapeResults["local_results"]
-        const organic_results = scrapeResults["organic_results"]
-
-        console.log(organic_results)
-        console.log(local_results)
+        this.resultExtractorService.saveAds(scrape.id, scrapeResults)
+        this.resultExtractorService.saveOrganicResults(scrape.id, scrapeResults)
+        this.resultExtractorService.saveLocalResults(scrape.id, scrapeResults)
 
         console.log(`Scheduled ${scrape.keyword} running...`)
         
@@ -82,5 +82,14 @@ export class TaskService {
     })
     newCronTask.start()
     this.sheduleRegistry.addCronJob(scrape.id, newCronTask)
+  }
+
+
+  async getTasksByUserId(id: string): Promise<Task[]> {
+    const tasks = await this.databaseService.task.findMany({
+      where: { userId: id }
+    })
+
+    return tasks
   }
 }

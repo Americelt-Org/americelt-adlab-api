@@ -1,0 +1,25 @@
+model OrganicResult {
+  id          String     @id @default(uuid())
+
+  scrape     Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id  String
+  
+  position    Int
+  title       String
+  link        String?
+  displayed_link String?
+  redirect_link String?
+  snippet     String?
+  sitelinks   Json?
+  favicon     String?
+  snippet_highlighted_words String[]
+  source      String?
+  thumbnail   String?
+  rich_snippet  Json?
+  about_this_result Json?
+  about_page_link String?
+  about_page_serpapi_link String?
+  cached_page_link  String?
+  related_pages_link  String?
+  duration String?
+}

@@ -1,13 +1,15 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 import { Task } from 'generated/prisma';
+import { SessionGuard } from 'src/auth/guard/session.guard';
 
-@Controller('jobs')
+@Controller('tasks')
 export class JobController {
   constructor(private readonly taskService: TaskService) {}
-
+  
   @Post()
+  @UseGuards(SessionGuard)
   async createJob(@Body() body: CreateTaskDto) { 
     const newTask: Task = await this.taskService.create(body)
 
@@ -15,5 +17,14 @@ export class JobController {
     await this.taskService.executeTask(newTask)
 
     return newTask
+  }
+
+  @Get()
+  @UseGuards(SessionGuard)
+  async getTasksByUserId(
+    @Req() request: Request & { authenticatedUser?: any }
+  ) {
+    const userId = request.authenticatedUser.id
+    return this.taskService.getTasksByUserId(userId)
   }
 }

@@ -5,63 +5,11 @@ model Scrape {
   taskId       String
 
   keyword     String
-  local_result    Local_Result[]
-  organic_result  Organic_Result[]
-  ads_result      Ads_Result[]
+  local_result    LocalResult[]
+  organic_result  OrganicResult[]
+  ads_result      AdsResult[]
 
   last_run_at DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-}
-
-
-model Local_Result {
-  id          String     @id @default(uuid())
-
-  scrapes     Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
-  scrape_id   String
-  
-  position    Int
-  title       String
-  place_id    String
-  lsig        String
-  place_id_search String
-  reviews     Int
-  price       String
-  type        String
-  address     String
-  phone       String
-  thumbnail   String
-  gps_coordinates Json
-}
-
-model Organic_Result {
-  id          String     @id @default(uuid())
-
-  scrape     Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
-  scrape_id String
-  
-  position    Int
-  title       String
-  link        String
-  snippet     String
-  displayed_link String
-  sitelinks   Json
-}
-
-model Ads_Result {
-  id          String     @id @default(uuid())
-
-  scrape      Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
-  scrape_id   String
-  
-  position    Int
-  title       String
-  link        String?
-  snippet     String?
-  displayed_link String?
-  tracking_link String?
-  thumbnail   String?
-  details     String?
-  details_list String[]
 }

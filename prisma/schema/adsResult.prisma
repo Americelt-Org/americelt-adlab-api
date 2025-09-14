@@ -1,0 +1,21 @@
+model AdsResult {
+  id             String   @id @default(uuid())
+
+  scrape         Scrape   @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id      String
+
+  position       Int
+  block_position String?
+  title          String
+  link           String?
+  displayed_link String?
+  tracking_link  String?
+  extensions     String[]
+  description    String?
+  source         String?
+  sitelinks      Json?
+
+  thumbnail      String?
+  details        String?
+  details_list   String[]
+}

@@ -10,9 +10,7 @@ model Task {
   location      String
 
   cron        String // Cron expression for scheduling
-  is_active   Boolean   @default(true)
-  last_run_at DateTime? // Timestamp of the last run
-  next_run_at DateTime? // Timestamp of the next scheduled run   
+  is_active   Boolean   @default(true)  
 
   scrape_results Scrape[] // Linked extracted results (optional)
   createdAt      DateTime        @default(now())

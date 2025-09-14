@@ -8,10 +8,13 @@ import { ConfigModule } from '@nestjs/config';
 import { envSchema } from './config/env';
 import { DatabaseModule } from './database/database.module';
 import { SerpapiModule } from './serpapi/serpapi.module';
-import { UserModule } from './user/user.module';
 import { CronSchedulerModule } from './cron-scheduler/cron-scheduler.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ScraperModule } from './scraper/scraper.module';
+import { ResultExtractorModule } from './result-extractor/result-extractor.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { ScrapeTableModule } from './scrape-table/scrape-table.module';
 
 
 @Module({
@@ -21,8 +24,11 @@ import { ScraperModule } from './scraper/scraper.module';
     TaskModule,
     DatabaseModule,
     SerpapiModule,
-    UserModule,
     CronSchedulerModule,
+    ScraperModule,
+    ResultExtractorModule,
+    AuthModule,
+    UsersModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ 
       isGlobal: true, 
@@ -37,7 +43,7 @@ import { ScraperModule } from './scraper/scraper.module';
     BullModule.registerQueue({
       name: "scraper_queue"
     }),
-    ScraperModule
+    ScrapeTableModule
   ],
 })
 export class AppModule {}
