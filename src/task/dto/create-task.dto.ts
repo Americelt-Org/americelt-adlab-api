@@ -26,6 +26,7 @@ export class CreateTaskDto {
     description: 'Job search location',
     example: 'San Francisco, CA'
   })
+
   @IsString({ message: 'Location must be a string' })
   @IsNotEmpty({ message: 'Location is required' })
   location: string;
@@ -69,10 +70,8 @@ export class CreateTaskDto {
     example: '0 9 * * MON-FRI'
   })
   
-  @IsString({ message: 'Cron must be a string' })
+  @IsString()
   @IsNotEmpty({ message: 'Cron expression is required' })
-  @Matches(/^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$/, 
-    { message: 'Invalid cron expression format' })
   cron: string;
 
   @ApiPropertyOptional({

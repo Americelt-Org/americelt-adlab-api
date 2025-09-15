@@ -8,26 +8,18 @@ import { ConfigService } from '@nestjs/config';
 export class ScraperService {
   constructor(
     private databaseService: DatabaseService,
-    private serpapiService: SerpapiService,
     private configService: ConfigService
   ){}
 
+  async scrape(keyword: string, location: string, search_engine: string, device: string) {
+    const results = await getJson({
+      q: keyword,
+      location: location,
+      engine: search_engine,
+      device: device,
+      api_key: this.configService.get<string>('SERP_API_KEY'),
+    })
 
-    async scrape(keyword: string, 
-                 location: string, 
-                 search_engine: string, 
-                 device: string) {
-   
-      const results = await getJson({
-        q: keyword,
-        location: location,
-        engine: search_engine,
-        device: device,
-        api_key: this.configService.get<string>('SERP_API_KEY'),
-      })
-  
-      return results;
-    }
-
-
+    return results;
+  }
 }

@@ -1,0 +1,9 @@
+model Country {
+  id   String @id @default(uuid())
+  name String @unique
+
+  cities City[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

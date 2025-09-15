@@ -5,7 +5,6 @@ import { SessionGuard } from 'src/auth/guard/session.guard';
 @Controller('scrapes')
 @UseGuards(SessionGuard)
 export class ScrapeTableController {
-
     constructor(
       private scrapeTableService: ScrapeTableService
     ){}

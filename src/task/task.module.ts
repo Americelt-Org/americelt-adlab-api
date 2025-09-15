@@ -8,6 +8,7 @@ import { ScraperModule } from 'src/scraper/scraper.module';
 import { ResultExtractorModule } from 'src/result-extractor/result-extractor.module';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
+import { RequesteStorageService } from 'src/request-storage.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule
   ],
   controllers: [JobController],
-  providers: [TaskService]
+  providers: [TaskService, RequesteStorageService]
 })
 export class TaskModule {}

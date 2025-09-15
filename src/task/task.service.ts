@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { Device, Task, SearchEngine, Scrape } from 'generated/prisma';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -6,6 +6,7 @@ import { CronJob } from 'cron';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ScraperService } from 'src/scraper/scraper.service';
 import { ResultExtractorService } from 'src/result-extractor/result-extractor.service';
+import { CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class TaskService {
@@ -77,7 +78,10 @@ export class TaskService {
       } catch (e) {
         // TODO: Improve error handling
         console.error("Error: ", e)
-        throw new Error(`Failed to run ${task.name} with scrape id: ${scrape.id}`)
+        throw new HttpException(
+          `Failed to run ${task.name} with scrape id: ${scrape.id}`,
+          HttpStatus.REQUEST_TIMEOUT
+        )
       }
     })
     newCronTask.start()
@@ -87,9 +91,35 @@ export class TaskService {
 
   async getTasksByUserId(id: string): Promise<Task[]> {
     const tasks = await this.databaseService.task.findMany({
-      where: { userId: id }
+      where: { userId: id },
+      orderBy: [
+        { is_active: 'desc' },
+        { createdAt: 'desc' }
+      ],
+      take: 10
     })
 
     return tasks
+  }
+
+  async getTaskById(taskId: string): Promise<Task> {
+    try {
+      const task = await this.databaseService.task.findFirstOrThrow({
+        where: {
+          id: taskId
+        },
+        include: {
+          scrape_results: {
+            take: 10,
+            orderBy: {
+              createdAt: 'desc'
+            }
+          }
+        }
+      });
+      return task;
+    } catch (e) {
+      throw new NotFoundException("Unable to find resource");
+    }
   }
 }
