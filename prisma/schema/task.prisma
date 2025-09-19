@@ -9,12 +9,12 @@ model Task {
   device        Device
   location      String
 
-  cron        String // Cron expression for scheduling
-  is_active   Boolean   @default(true)  
+  cron      String // Cron expression for scheduling
+  is_active Boolean @default(true)
 
   scrape_results Scrape[] // Linked extracted results (optional)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   competitor Competitor[]
 }

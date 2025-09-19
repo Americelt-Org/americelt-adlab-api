@@ -1,21 +1,23 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TaskModule } from './task/task.module';
+import { TaskModule } from './modules/task/task.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { envSchema } from './config/env';
-import { DatabaseModule } from './database/database.module';
-import { SerpapiModule } from './serpapi/serpapi.module';
-import { CronSchedulerModule } from './cron-scheduler/cron-scheduler.module';
+import { DatabaseModule } from './modules/database/database.module';
+import { CronSchedulerModule } from './modules/cron-scheduler/cron-scheduler.module';
 import { BullModule } from '@nestjs/bullmq';
-import { ScraperModule } from './scraper/scraper.module';
-import { ResultExtractorModule } from './result-extractor/result-extractor.module';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { ScraperModule } from './modules/scraper/scraper.module';
+import { ResultExtractorModule } from './modules/result-extractor/result-extractor.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { RequesteStorageService } from './request-storage.service';
-import { LocationModule } from './location/location.module';
+import { LocationModule } from './modules/location/location.module';
+import { CompetitorsModule } from './modules/competitors/competitors.module';
+import { LoggerMiddleware } from './middlewares/logging.middleware';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 
 @Module({
@@ -24,14 +26,16 @@ import { LocationModule } from './location/location.module';
   imports: [
     TaskModule,
     DatabaseModule,
-    SerpapiModule,
     CronSchedulerModule,
     ScraperModule,
     ResultExtractorModule,
     AuthModule,
     UsersModule,
     JwtModule,
+    LocationModule,
+    CompetitorsModule,
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({ 
       isGlobal: true, 
       validate: envSchema.parse
@@ -45,18 +49,12 @@ import { LocationModule } from './location/location.module';
     BullModule.registerQueue({
       name: "scraper_queue"
     }),
-    LocationModule
+    
   ],
 })
-export class AppModule{}
 
-// export class AppModule implements NestModule{
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(SessionMiddleware)
-//             .exclude(
-//               { path: '/auth/login', method: RequestMethod.POST },
-//               { path: '/auth/register', method: RequestMethod.POST },
-//             )
-//             .forRoutes('*')
-//   }
-// }
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*')
+  }
+}

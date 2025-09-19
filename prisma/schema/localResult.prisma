@@ -1,12 +1,13 @@
 model LocalResult {
-  id              String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  scrapes         Scrape   @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
-  scrape_id       String
+  scrapes   Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id String
 
   position        Int
   title           String
-  place_id        String
+  place_id        String?
+  processed_at    String?
   data_id         String?
   reviews_link    String?
   photos_link     String?
@@ -28,4 +29,7 @@ model LocalResult {
   website         String?
   description     String?
   thumbnail       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,10 +1,28 @@
 model Competitor {
-  id     String @id @default(uuid())
-  name   String
-  domain String @unique
-  task    Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  id      String   @id @default(uuid())
+  domain  String 
+
+  task    Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId  String
+
+  // Aggregated metrics
+  organicCount Int     @default(0)   // how many times competitor appeared in organic results
+  localCount   Int     @default(0)   // how many times competitor appeared in local results
+  adsCount     Int     @default(0)   // how many times competitor appeared in ads
+  totalCount   Int     @default(0)   // overall appearances across all sources
+
+  avgOrganicPos Float? // average organic search position
+  avgLocalPos   Float? // average local position
+  avgAdsPos     Float? // average ads position
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([taskId, domain])
+}
+
+enum CompetitorType {
+  ORGANIC
+  LOCAL
+  ADS
 }
