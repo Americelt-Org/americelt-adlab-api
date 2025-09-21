@@ -18,11 +18,13 @@ export class TaskService implements OnModuleInit {
     private scraperService: ScraperService,
     private resultExtractorService: ResultExtractorService
   ) { }
+
   async onModuleInit() {
     this.logger.log(`Task Module starting, registering active cron tasks`)
     const activeTasks = await this.databaseService.task.findMany({
       where: {
-        is_active: true
+        is_active: true,
+        archived_at: null
       }
     })
     this.logger.log(`Found ${activeTasks.length} active task/tasks`)
@@ -49,7 +51,7 @@ export class TaskService implements OnModuleInit {
   }
 
   async executeTask(task: Task) {
-    if (!task.is_active) {
+    if (!task.is_active || task.archived_at) {
       this.logger.error(`Unable to execute inactive task: '${task.name} - ${task.id}'`)
       return
     }
@@ -71,7 +73,7 @@ export class TaskService implements OnModuleInit {
     const newCronTask = new CronJob(task.cron, async () => {
       const startedAt = new Date();
 
-      try {
+      // try {
         // Call the scraper Service
         const scrapeResults = await this.scraperService.scrape(
           scrape.keyword,
@@ -105,27 +107,26 @@ export class TaskService implements OnModuleInit {
         this.logger.debug(
           `Task ${task.name} scheduled run finished successfully (scrapeId=${scrape.id}, duration=${Date.now() - startedAt.getTime()}ms)`,
         );
-      } catch (err) {
-        // ✅ System/technical failure
-        this.logger.error(
-          `System failure while running task=${task.name}, scrapeId=${scrape.id}: ${err.message}`,
-          err.stack,
-        );
-        throw new HttpException(
-          `System error while running ${task.name} (scrapeId=${scrape.id})`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    });
+    //   } catch (err) {
+    //     // ✅ System/technical failure
+    //     this.logger.error(
+    //       `System failure while running task=${task.name}, scrapeId=${scrape.id}: ${err.message}`,
+    //       err.stack,
+    //     );
+    //     throw new HttpException(
+    //       `System error while running ${task.name} (scrapeId=${scrape.id})`,
+    //       HttpStatus.INTERNAL_SERVER_ERROR,
+    //     );
+    //   }
+      });
 
     newCronTask.start();
     this.schedulerRegistry.addCronJob(scrape.id, newCronTask);
   }
 
-
   async getTasksByUserId(id: string): Promise<Task[]> {
     const tasks = await this.databaseService.task.findMany({
-      where: { userId: id },
+      where: { userId: id, archived_at: null },
       orderBy: [
         { is_active: 'desc' },
         { createdAt: 'desc' }
@@ -186,20 +187,15 @@ export class TaskService implements OnModuleInit {
 
     for (const scrape of scrapes) {
       this.logger.debug(`Updating task scrape status: ${scrape.keyword} to ${newTaskStatus}`);
-
       try {
-        const jobs = this.schedulerRegistry.getCronJobs()
-        console.log("ID: ", scrape.id)
-         console.log("cron jobs: ", jobs)
         const scrapeCron = this.schedulerRegistry.getCronJob(scrape.id);
-
         if (newTaskStatus) {
           scrapeCron.start();
         } else {
           scrapeCron.stop();
         }
       } catch (e) {
-        this.logger.error(
+        this.logger.warn(
           `Not found scrape, creating new`
         );
         this.runTaskSchedule(updatedTask, scrape)

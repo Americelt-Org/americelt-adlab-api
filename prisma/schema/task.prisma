@@ -13,6 +13,7 @@ model Task {
   is_active Boolean @default(true)
 
   scrape_results Scrape[] // Linked extracted results (optional)
+  archived_at    DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

@@ -3,19 +3,15 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 import { Task } from 'generated/prisma';
 import { SessionGuard } from 'src/guards/session.guard';
+import { ArchiveService } from './archive.service';
 
 @Controller('tasks')
 @UseGuards(SessionGuard)
-export class JobController {
-  constructor(private readonly taskService: TaskService) {}
-  
-  @Post()
-  async createJob(@Body() body: CreateTaskDto) { 
-    const newTask: Task = await this.taskService.create(body)
-    // execute or register a schedule for task
-    await this.taskService.executeTask(newTask)
-    return newTask
-  }
+export class TaskController {
+  constructor(
+    private taskService: TaskService,
+    private archiveService: ArchiveService
+  ) { }
 
   @Get()
   async getTasksByUserId(
@@ -25,10 +21,23 @@ export class JobController {
     return this.taskService.getTasksByUserId(userId)
   }
 
+  @Get('archives')
+  async taskArchives(@Req() request: Request & { authenticatedUser?: any }) {
+    const userId = request.authenticatedUser.id
+    return await this.archiveService.getArchivedTasks(userId)
+  }
+
+  @Post()
+  async createJob(@Body() body: CreateTaskDto) {
+    const newTask: Task = await this.taskService.create(body)
+    await this.taskService.executeTask(newTask)
+    return newTask
+  }
+
   @Get(':taskId')
   async findTask(
     @Param() param: { taskId: string }
-  ){
+  ) {
     const task = await this.taskService.getTaskById(param.taskId)
     return task
   }
@@ -36,7 +45,7 @@ export class JobController {
   @Delete(':taskId')
   async delete(
     @Param() param: { taskId: string }
-  ){
+  ) {
     const deletedTask: Task = await this.taskService.deleteTask(param.taskId)
     return deletedTask
   }
@@ -45,7 +54,20 @@ export class JobController {
   async updateStatus(
     @Param() param: { taskId: string }
   ) {
-    const updateCount = await this.taskService.updateStatus(param.taskId)
-    return updateCount
+    return await this.taskService.updateStatus(param.taskId)
+  }
+
+  @Patch(':taskId/archive')
+  async archiveTask(
+    @Param() param: { taskId: string }
+  ) {
+    return this.archiveService.archiveTask(param.taskId)
+  }
+
+  @Patch(':taskId/unarchive')
+  async unArchiveTask(
+    @Param() param: { taskId: string }
+  ) {
+    return this.archiveService.unArchiveTask(param.taskId)
   }
 }
