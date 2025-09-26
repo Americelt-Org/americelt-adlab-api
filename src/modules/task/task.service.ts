@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from 'src/modules/database/database.service';
 import { Device, Task, SearchEngine, Scrape } from 'generated/prisma';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -6,6 +6,8 @@ import { CronJob } from 'cron';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ScraperService } from 'src/modules/scraper/scraper.service';
 import { ResultExtractorService } from 'src/modules/result-extractor/result-extractor.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TaskArchivedEvent } from '../cron-scheduler/events/TaskArchivedEvent';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
@@ -16,7 +18,8 @@ export class TaskService implements OnModuleInit {
     private databaseService: DatabaseService,
     private schedulerRegistry: SchedulerRegistry,
     private scraperService: ScraperService,
-    private resultExtractorService: ResultExtractorService
+    private resultExtractorService: ResultExtractorService,
+    private eventEmitter: EventEmitter2
   ) { }
 
   async onModuleInit() {
@@ -72,9 +75,10 @@ export class TaskService implements OnModuleInit {
   async runTaskSchedule(task: Task, scrape: Scrape) {
     const newCronTask = new CronJob(task.cron, async () => {
       const startedAt = new Date();
+      this.logger.debug('running task schedule')
 
-      // try {
-        // Call the scraper Service
+      try {
+
         const scrapeResults = await this.scraperService.scrape(
           scrape.keyword,
           task.location,
@@ -107,18 +111,13 @@ export class TaskService implements OnModuleInit {
         this.logger.debug(
           `Task ${task.name} scheduled run finished successfully (scrapeId=${scrape.id}, duration=${Date.now() - startedAt.getTime()}ms)`,
         );
-    //   } catch (err) {
-    //     // ✅ System/technical failure
-    //     this.logger.error(
-    //       `System failure while running task=${task.name}, scrapeId=${scrape.id}: ${err.message}`,
-    //       err.stack,
-    //     );
-    //     throw new HttpException(
-    //       `System error while running ${task.name} (scrapeId=${scrape.id})`,
-    //       HttpStatus.INTERNAL_SERVER_ERROR,
-    //     );
-    //   }
-      });
+      } catch (err) {
+        this.logger.error(
+          `System failure while running task=${task.name}, scrapeId=${scrape.id}: ${err.message}`,
+          err.stack,
+        );
+      }
+    });
 
     newCronTask.start();
     this.schedulerRegistry.addCronJob(scrape.id, newCronTask);
@@ -126,7 +125,10 @@ export class TaskService implements OnModuleInit {
 
   async getTasksByUserId(id: string): Promise<Task[]> {
     const tasks = await this.databaseService.task.findMany({
-      where: { userId: id, archived_at: null },
+      where: {
+        userId: id,
+        archived_at: null
+      },
       orderBy: [
         { is_active: 'desc' },
         { createdAt: 'desc' }
@@ -158,10 +160,17 @@ export class TaskService implements OnModuleInit {
     }
   }
 
+  // fix the issue here: toms
   async deleteTask(taskId: string): Promise<Task> {
-    return await this.databaseService.task.delete({
+    const deletedTask = await this.databaseService.task.delete({
       where: { id: taskId }
     })
+
+    this.eventEmitter.emit(
+      'task.delete', 
+      new TaskArchivedEvent(deletedTask)
+    )
+    return deletedTask
   }
 
   async updateStatus(taskId: string): Promise<Task> {

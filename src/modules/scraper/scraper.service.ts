@@ -12,6 +12,7 @@ export class ScraperService {
     const results = await getJson({
       q: keyword,
       location: location,
+      gl: 'us',
       engine: search_engine,
       device: device,
       api_key: this.configService.get<string>('SERP_API_KEY'),

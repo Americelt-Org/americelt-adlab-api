@@ -1,14 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { Country, City } from 'generated/prisma';
 import { DatabaseService } from 'src/modules/database/database.service';
-import { CityDto, CreateCityDto } from './dto/CreateCityDto';
+import { CityDto } from './dto/CreateCityDto';
+
+import { getLocations } from 'serpapi';
 
 @Injectable()
 export class LocationService {
 
   constructor(
     private databaseService: DatabaseService
-  ){}
+  ) { }
+
+  async getLocations(q: string) {
+    const searchQuery = (q && q.trim()) ? q : 'United States';
+    const results = await getLocations({
+      q: searchQuery
+    })
+    return results
+  }
 
   async getCountries(): Promise<Country[]> {
     const countries = await this.databaseService.country.findMany({
@@ -25,11 +35,11 @@ export class LocationService {
   }
 
   async createCountry(data: string[]): Promise<Country | Country[]> {
-    let response: Country [] = []
+    let response: Country[] = []
     for (const name of data) {
       response.push(
         await this.databaseService.country.create({
-         data: { name }
+          data: { name }
         })
       )
     }
@@ -46,6 +56,6 @@ export class LocationService {
       },
     });
 
-  return city;
-}
+    return city;
+  }
 }

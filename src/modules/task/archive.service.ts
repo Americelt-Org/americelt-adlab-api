@@ -1,12 +1,16 @@
 import { Injectable, Patch } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { Task } from 'generated/prisma';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TaskArchivedEvent } from 'src/modules/cron-scheduler/events/TaskArchivedEvent';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class ArchiveService {
-
   constructor(
-    private databaseService: DatabaseService 
+    private databaseService: DatabaseService,
+    private eventEmitter: EventEmitter2,
+    private scheduleRegistry: SchedulerRegistry
   ){}
 
   async getArchivedTasks(userId: string): Promise<Task[]> {
@@ -28,6 +32,11 @@ export class ArchiveService {
         is_active: false
       }
     })
+
+    this.eventEmitter.emit(
+      'task.archive', 
+      new TaskArchivedEvent(updatedTask)
+    )
 
     return updatedTask
   }

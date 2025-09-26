@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { CreateCountyDto } from './dto/CreateCountryDto';
 import { CreateCityDto } from './dto/CreateCityDto';
 
-@Controller('location')
+@Controller('locations')
 export class LocationController {
 
   constructor(
@@ -30,6 +30,13 @@ export class LocationController {
        result.push(createdCity)
     }
     return result
+  }
+
+  @Get()
+  async getLocations(
+    @Query('q') q: string
+  ){
+    return await this.locationService.getLocations(q)
   }
 
 }
