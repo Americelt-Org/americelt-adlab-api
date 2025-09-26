@@ -22,4 +22,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/americelt/americelt-adlab-api:latest
+          tags: ghcr.io/americelt-org/americelt-adlab-api:latest
