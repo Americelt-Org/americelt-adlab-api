@@ -22,4 +22,4 @@ jobs:
           context: .
           file: ./Dockerfile.prod
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/americelt-adlab-api:latest
+          tags: ghcr.io/americelt/americelt-adlab-api:latest
