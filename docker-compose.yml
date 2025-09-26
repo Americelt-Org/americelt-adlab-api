@@ -1,28 +1,27 @@
 services:
-  postgres_db:
+  adlab_db:
     image: postgres:latest
     container_name: adlab-db-container
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: postgres1234
-      POSTGRES_DB: adlab_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgresdb_data:/var/lib/postgresql/data
+      - adlab_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user", "-d", "adlab_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 20s
       timeout: 5s
       retries: 5
       start_period: 30s
 
-
   redis_db:
     image: redis:7
     container_name: scheduler-cache-container
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -32,23 +31,24 @@ services:
       timeout: 3s
       retries: 5
 
-  backend:
-    build:
+  adlab_api:
+   # image: ghcr.io/americelt-org/americelt-adlab-api:latest
+    build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     container_name: adlab-api-container
-    ports: 
-      - '3001:3001'
+    ports:
+      - "${PORT}:${PORT}"
     volumes: 
       - ./src:/app/src
     env_file:
     - .env
     depends_on:
-      postgres_db:
+      adlab_db:
         condition: service_healthy
       redis_db:
         condition: service_healthy
 
 volumes:
-  postgresdb_data:
+  adlab_data:
   redis_data:
