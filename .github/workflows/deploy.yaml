@@ -20,6 +20,6 @@ jobs:
         uses: docker/build-push-action@v6
         with: 
           context: .
-          file: ./Dockerfile.prod
+          file: ./Dockerfile
           push: true
           tags: ghcr.io/americelt/americelt-adlab-api:latest
