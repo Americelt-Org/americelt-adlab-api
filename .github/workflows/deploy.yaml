@@ -1,0 +1,25 @@
+name: Building package 
+on:
+  [workflow_dispatch]
+
+jobs: 
+  building_package:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with: 
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.PROJECT_SSH_TOKEN }}
+
+      - name: Building and publish package
+        uses: docker/build-push-action@v6
+        with: 
+          context: .
+          file: ./Dockerfile.prod
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/americelt-adlab-api:latest

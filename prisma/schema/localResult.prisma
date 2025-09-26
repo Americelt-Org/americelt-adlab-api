@@ -1,0 +1,35 @@
+model LocalResult {
+  id String @id @default(uuid())
+
+  scrapes   Scrape @relation(fields: [scrape_id], references: [id], onDelete: Cascade)
+  scrape_id String
+
+  position        Int
+  title           String
+  place_id        String?
+  processed_at    String?
+  data_id         String?
+  reviews_link    String?
+  photos_link     String?
+  gps_coordinates Json?
+  place_id_search String?
+  provider_id     String?
+  rating          Float?
+  reviews         Int?
+  price           String?
+  type            String?
+  types           String[]
+  type_id         String?
+  type_ids        String[]
+  address         String?
+  open_state      String?
+  hours           String?
+  operating_hours Json?
+  phone           String?
+  website         String?
+  description     String?
+  thumbnail       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
