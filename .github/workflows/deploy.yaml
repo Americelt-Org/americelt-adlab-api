@@ -14,7 +14,7 @@ jobs:
         with: 
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.PROJECT_SSH_TOKEN }}
+          password: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Building and publish package
         uses: docker/build-push-action@v6
